@@ -1,0 +1,87 @@
+Category,Subcategory,Test Prompt,Expected Outcome,Complexity
+Database Analysis,Business Intelligence,"Show me today's restaurant orders and revenue. Break down by order status and highlight any patterns.","Revenue summary with order status breakdown",Medium
+Database Analysis,Business Intelligence,"What are the top 5 most popular menu items this month? Include quantity sold and revenue generated.","Top 5 menu items with sales data",Medium
+Database Analysis,Business Intelligence,"Analyze our guest data - how many guests are currently checked in vs checking out today?","Guest occupancy summary",Simple
+Database Analysis,Business Intelligence,"Give me a summary of WhatsApp message activity in the last 24 hours. What are guests asking about most?","WhatsApp activity analysis",Medium
+Database Analysis,Business Intelligence,"Show me incomplete orders that might need attention from the kitchen staff.","List of pending/incomplete orders",Simple
+Database Analysis,Data Quality,"Check our database for any data quality issues - missing emails, invalid phone numbers, or incomplete guest profiles.","Data quality report with issues",Complex
+Database Analysis,Data Quality,"What percentage of our guests have WhatsApp numbers? Show me the breakdown by guest status.","WhatsApp adoption percentage by status",Medium
+Database Analysis,Data Quality,"Find guests who have made multiple orders but haven't completed checkout. Are they repeat customers?","Multi-order guests analysis",Medium
+Database Analysis,Data Quality,"Analyze our product pricing - which items have the highest profit margins?","Product profitability analysis",Medium
+Database Analysis,Data Quality,"Show me any guests with duplicate entries or potential data conflicts.","Duplicate detection report",Complex
+Hotel Operations,Guest Management,"List all guests checking in today. Include their room assignments and contact information.","Today's check-in list with details",Simple
+Hotel Operations,Guest Management,"Show me guests who have been here longer than their expected checkout date. Do we need to follow up?","Overstay guests list",Medium
+Hotel Operations,Guest Management,"Find VIP guests or repeat visitors in our current guest list. How can we provide special service?","VIP/repeat guest identification",Medium
+Hotel Operations,Guest Management,"Which guests have provided passport information vs those still pending? Create a follow-up list.","Passport completion status",Simple
+Hotel Operations,Guest Management,"Show me guest families that might need larger tables or special dining arrangements.","Family groups identification",Medium
+Hotel Operations,Arrival & Departure,"Create a comprehensive arrival report for today - who's coming, when, and from which ports.","Daily arrival report",Medium
+Hotel Operations,Arrival & Departure,"Show me checkout activity for this week. Are there any patterns in departure timing?","Weekly checkout analysis",Medium
+Hotel Operations,Arrival & Departure,"List guests who haven't completed their onboarding process. What steps are they missing?","Incomplete onboarding report",Medium
+Hotel Operations,Arrival & Departure,"Find guests whose WhatsApp groups were created successfully vs those that failed.","WhatsApp group creation status",Simple
+Hotel Operations,Arrival & Departure,"Show me guests arriving by boat today - do we have their transport details?","Boat arrival details",Simple
+Restaurant Operations,Order Management,"Show me all active restaurant orders right now. What needs immediate kitchen attention?","Active orders with priority",Simple
+Restaurant Operations,Order Management,"List orders that have been 'preparing' for more than 30 minutes. Are there any delays?","Delayed orders report",Simple
+Restaurant Operations,Order Management,"Find orders with special dietary requests or instructions that need extra care.","Special requirements orders",Simple
+Restaurant Operations,Order Management,"Show me table assignments and current order status for the dining room.","Table status overview",Medium
+Restaurant Operations,Order Management,"What orders are ready for delivery? Create a delivery queue for staff.","Ready-to-deliver queue",Simple
+Restaurant Operations,Menu & Inventory,"Which menu items are selling well vs poorly? Should we adjust our offerings?","Menu performance analysis",Medium
+Restaurant Operations,Menu & Inventory,"Show me all product options and customizations. Are customers using these features?","Product options usage analysis",Medium
+Restaurant Operations,Menu & Inventory,"Analyze order patterns by time of day. When are we busiest?","Hourly order pattern analysis",Medium
+Restaurant Operations,Menu & Inventory,"Find menu items that customers frequently modify. What does this tell us about preferences?","Customization preferences analysis",Complex
+Restaurant Operations,Menu & Inventory,"Show me average order values and identify opportunities to increase revenue.","AOV analysis with upsell opportunities",Medium
+WhatsApp & Communication,Message Analysis,"Show me recent WhatsApp conversations that might need human intervention.","Escalation-required conversations",Medium
+WhatsApp & Communication,Message Analysis,"What are the most common questions guests ask our chatbot? Are we handling them well?","FAQ frequency analysis",Medium
+WhatsApp & Communication,Message Analysis,"Find guests who have sent multiple messages without getting responses. Do we have service gaps?","Unresponded message analysis",Medium
+WhatsApp & Communication,Message Analysis,"Analyze the FAQ database - which answers are most helpful vs need updates?","FAQ effectiveness analysis",Medium
+WhatsApp & Communication,Message Analysis,"Show me WhatsApp error logs. Are there technical issues affecting guest communication?","Technical error analysis",Simple
+WhatsApp & Communication,Bot Performance,"How many WhatsApp messages were handled automatically vs escalated to humans?","Automation vs human ratio",Simple
+WhatsApp & Communication,Bot Performance,"Show me training examples from guest interactions. What can we learn?","Training data insights",Medium
+WhatsApp & Communication,Bot Performance,"Find patterns in failed message deliveries. Are there connectivity issues?","Message delivery failure analysis",Medium
+WhatsApp & Communication,Bot Performance,"Analyze reaction data - are guests satisfied with bot responses?","Guest satisfaction via reactions",Medium
+WhatsApp & Communication,Bot Performance,"What templates are being used most? Should we create new ones?","Template usage analysis",Simple
+Technical & Development,Database Health,"Run a health check on our database. Are there any performance issues or warnings?","Database health report",Simple
+Technical & Development,Database Health,"Show me recent database migrations. Are all changes applied successfully?","Migration status report",Simple
+Technical & Development,Database Health,"Check our backup systems and data integrity. Is everything properly maintained?","Backup and integrity check",Medium
+Technical & Development,Database Health,"Analyze database usage patterns. Do we need to optimize any queries?","Performance optimization suggestions",Complex
+Technical & Development,Database Health,"Find any database constraints or foreign key issues that need attention.","Constraint violation report",Medium
+Technical & Development,System Monitoring,"Show me recent Edge Function deployments. Are they all running properly?","Edge Function status report",Simple
+Technical & Development,System Monitoring,"Check our Supabase project status and any advisor recommendations.","Project health with recommendations",Simple
+Technical & Development,System Monitoring,"Generate TypeScript types for our latest schema changes.","TypeScript type generation",Simple
+Technical & Development,System Monitoring,"List all database extensions and their current status.","Extension status report",Simple
+Technical & Development,System Monitoring,"Show me project logs for any recent errors or unusual activity.","Error log analysis",Simple
+Complex Analysis,Cross-System Reports,"Create a complete guest journey report - from booking to checkout including all orders and interactions.","End-to-end guest journey",Complex
+Complex Analysis,Cross-System Reports,"Show me revenue correlation between room bookings and restaurant orders. Do room guests spend more on food?","Revenue correlation analysis",Complex
+Complex Analysis,Cross-System Reports,"Analyze guest communication preferences vs their spending patterns.","Communication vs spending correlation",Complex
+Complex Analysis,Cross-System Reports,"Find operational bottlenecks - where do guests experience delays in service?","Bottleneck identification report",Complex
+Complex Analysis,Cross-System Reports,"Create a comprehensive daily operations dashboard with all key metrics.","Daily operations dashboard",Complex
+Complex Analysis,Predictive Insights,"Based on current bookings and historical data, predict tomorrow's restaurant capacity needs.","Capacity prediction model",Complex
+Complex Analysis,Predictive Insights,"Identify guests likely to need special assistance based on their profiles and past interactions.","Special assistance prediction",Complex
+Complex Analysis,Predictive Insights,"Show me seasonal patterns in orders, bookings, and guest preferences.","Seasonal trend analysis",Complex
+Complex Analysis,Predictive Insights,"Find guests who might be interested in extending their stay based on their current behavior.","Stay extension prediction",Complex
+Complex Analysis,Predictive Insights,"Analyze which marketing channels bring the highest-value guests.","Marketing channel ROI analysis",Complex
+Edge Cases,Stress Tests,"Execute a complex multi-join query across all major tables and explain the results.","Complex query execution with explanation",Complex
+Edge Cases,Stress Tests,"Try to find data inconsistencies between related tables (orders vs guests vs profiles).","Data inconsistency report",Complex
+Edge Cases,Stress Tests,"Run several queries simultaneously and handle any timeout or connection issues gracefully.","Concurrent query handling",Complex
+Edge Cases,Stress Tests,"Test with malformed SQL and show proper error handling.","Error handling demonstration",Medium
+Edge Cases,Stress Tests,"Query very large datasets and demonstrate pagination or result limiting.","Large dataset handling",Medium
+Edge Cases,Boundary Conditions,"Show me data from exactly one year ago vs today. Has our business grown?","Year-over-year growth analysis",Medium
+Edge Cases,Boundary Conditions,"Find the oldest and newest records in each major table.","Data age range analysis",Simple
+Edge Cases,Boundary Conditions,"Test queries with special characters, emojis, and international text.","Unicode/special character handling",Medium
+Edge Cases,Boundary Conditions,"Handle queries about data that doesn't exist gracefully.","Graceful no-data handling",Simple
+Edge Cases,Boundary Conditions,"Show how you deal with null values and missing data in reports.","Null value handling demonstration",Medium
+Advanced Use Cases,AI Recommendations,"Based on guest behavior and preferences, recommend menu items for tonight's special.","AI-driven menu recommendations",Complex
+Advanced Use Cases,AI Recommendations,"Suggest operational improvements based on current data patterns.","Operational improvement suggestions",Complex
+Advanced Use Cases,AI Recommendations,"Identify guests who might benefit from personalized service offerings.","Personalization opportunities",Complex
+Advanced Use Cases,AI Recommendations,"Recommend optimal table assignments based on guest profiles and party sizes.","Table assignment optimization",Complex
+Advanced Use Cases,AI Recommendations,"Suggest timing for proactive guest communications based on their journey stage.","Communication timing optimization",Complex
+Advanced Use Cases,Automation Triggers,"Find conditions that should trigger automatic guest communications.","Automation rule suggestions",Complex
+Advanced Use Cases,Automation Triggers,"Identify when staff should be alerted about operational issues.","Alert condition identification",Complex
+Advanced Use Cases,Automation Triggers,"Suggest rules for automatic upselling or cross-selling opportunities.","Upselling automation rules",Complex
+Advanced Use Cases,Automation Triggers,"Determine when to escalate guest issues from bot to human staff.","Escalation trigger conditions",Complex
+Advanced Use Cases,Automation Triggers,"Create triggers for maintenance alerts based on system usage patterns.","Maintenance alert triggers",Complex
+Quick Start,Basic Queries,"How many orders do we have today?","Simple order count",Simple
+Quick Start,Basic Queries,"List our current menu items","Menu item list",Simple
+Quick Start,Basic Queries,"Show me recent guest check-ins","Recent check-in list",Simple
+Quick Start,Business Insights,"What's our revenue for this week?","Weekly revenue summary",Simple
+Quick Start,Business Insights,"Which guests need attention?","Attention-required guest list",Medium
+Quick Start,Business Insights,"Are there any system alerts I should know about?","System alert summary",Simple

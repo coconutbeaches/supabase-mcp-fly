@@ -1,0 +1,315 @@
+openapi: 3.1.0
+info:
+  title: MotherBrainGPT Supabase MCP API
+  description: |
+    Supabase MCP Server Bridge for Coconut Beach Hotel & Restaurant Management
+    
+    **IMPORTANT NOTES:**
+    - Use `execute_sql` for ALL database queries (no select_rows, get_table_schema, etc.)
+    - The `list_tables` tool does NOT accept a `schema` parameter
+    - Always include `arguments` object in request body, even if empty
+    - SQL results are returned within `<untrusted-data-*>` tags in the response
+    
+  version: 2.0.0
+  contact:
+    name: Coconut Beach Support
+    url: https://coconutbeach.com
+
+servers:
+  - url: https://supabase-mcp-fly.fly.dev
+    description: Production MCP Bridge Server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+      description: Use the bridge authentication token
+
+  schemas:
+    ToolResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the tool execution was successful
+        message:
+          type: string
+          description: Human readable message about the execution
+        toolName:
+          type: string
+          description: Name of the tool that was executed
+        arguments:
+          type: object
+          description: Arguments that were passed to the tool
+        result:
+          type: object
+          description: The result data from the tool
+        error:
+          type: string
+          description: Error message if execution failed
+      required: [success, message, toolName]
+
+    SqlArguments:
+      type: object
+      properties:
+        query:
+          type: string
+          description: SQL query to execute
+          example: "SELECT name, price FROM products ORDER BY name LIMIT 10;"
+      required: [query]
+      additionalProperties: false
+
+    EmptyArguments:
+      type: object
+      properties: {}
+      additionalProperties: false
+
+paths:
+  /api/tools:
+    get:
+      summary: List Available Tools
+      description: Get list of all available MCP tools
+      operationId: listAvailableTools
+      responses:
+        '200':
+          description: List of available tools
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tools list from MCP server"
+                  tools:
+                    type: array
+                    items:
+                      type: string
+                    example: ["execute_sql", "list_tables", "search_docs"]
+                  count:
+                    type: integer
+                    example: 20
+
+  /api/tools/execute_sql:
+    post:
+      summary: Execute SQL Query
+      description: Execute raw SQL queries against the Supabase database. Use this for ALL database operations including SELECT queries, table joins, filtering and sorting data.
+        
+      operationId: executeSQL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  $ref: '#/components/schemas/SqlArguments'
+              required: [arguments]
+            examples:
+              list_menu:
+                summary: List menu items
+                value:
+                  arguments:
+                    query: "SELECT p.name, p.description, p.price, c.name as category FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY c.sort_order, p.sort_order, p.name;"
+              todays_orders:
+                summary: Today's orders
+                value:
+                  arguments:
+                    query: "SELECT id, customer_name, total_amount, order_status, created_at FROM orders WHERE DATE(created_at) = CURRENT_DATE ORDER BY created_at DESC;"
+              current_guests:
+                summary: Current guests
+                value:
+                  arguments:
+                    query: "SELECT stay_id, first_name, table_number, created_at FROM guests ORDER BY created_at DESC LIMIT 20;"
+      responses:
+        '200':
+          description: SQL query executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+              example:
+                success: true
+                message: "Tool 'execute_sql' executed successfully"
+                toolName: "execute_sql"
+                arguments:
+                  query: "SELECT name, price FROM products LIMIT 5;"
+                result:
+                  content: "\"Below is the result of the SQL query...<untrusted-data-abc123>[{\"name\":\"Water\",\"price\":\"20\"},{\"name\":\"Coffee\",\"price\":\"85\"}]</untrusted-data-abc123>\""
+
+  /api/tools/list_tables:
+    post:
+      summary: List Database Tables
+      description: Get comprehensive database table information including names, schemas, columns, keys and row counts. Does NOT accept schema parameter - use empty arguments only.
+        
+      operationId: listTables
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  $ref: '#/components/schemas/EmptyArguments'
+              required: [arguments]
+            example:
+              arguments: {}
+      responses:
+        '200':
+          description: Database tables listed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/search_docs:
+    post:
+      summary: Search Supabase Documentation
+      description: Search the Supabase documentation using GraphQL queries
+      operationId: searchDocs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    graphql_query:
+                      type: string
+                      description: GraphQL query for documentation search
+                      example: "{ searchDocs(query: \"row level security\") { nodes { title href content } } }"
+                  required: [graphql_query]
+              required: [arguments]
+      responses:
+        '200':
+          description: Documentation search completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/list_extensions:
+    post:
+      summary: List Database Extensions
+      description: List all installed PostgreSQL extensions
+      operationId: listExtensions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  $ref: '#/components/schemas/EmptyArguments'
+              required: [arguments]
+      responses:
+        '200':
+          description: Extensions listed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/get_advisors:
+    post:
+      summary: Get Database Advisors
+      description: Get security and performance recommendations for the database
+      operationId: getAdvisors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [security, performance]
+                      description: Type of advisors to fetch
+                  required: [type]
+              required: [arguments]
+      responses:
+        '200':
+          description: Advisors retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/get_logs:
+    post:
+      summary: Get Project Logs
+      description: Fetch logs from various Supabase services
+      operationId: getLogs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    service:
+                      type: string
+                      enum: [api, branch-action, postgres, edge-function, auth, storage, realtime]
+                      description: Service to fetch logs for
+                  required: [service]
+              required: [arguments]
+      responses:
+        '200':
+          description: Logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+# Additional database context for CustomGPT understanding
+x-database-schema:
+  tables:
+    products:
+      description: "Restaurant menu items (65 rows)"
+      key_columns: [id, name, description, price, category_id]
+      sample_query: "SELECT p.name, p.description, p.price, c.name as category FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY c.sort_order, p.sort_order;"
+    
+    categories:
+      description: "Menu categories (6 rows)" 
+      key_columns: [id, name, description, sort_order]
+      sample_query: "SELECT name, description, sort_order FROM categories ORDER BY sort_order;"
+    
+    orders:
+      description: "Customer orders (4,434 rows)"
+      key_columns: [id, customer_name, total_amount, order_status, created_at]
+      sample_query: "SELECT id, customer_name, total_amount, order_status, created_at FROM orders WHERE DATE(created_at) = CURRENT_DATE ORDER BY created_at DESC;"
+    
+    guests:
+      description: "Current hotel guests (203 rows)"
+      key_columns: [id, stay_id, first_name, table_number, created_at]
+      sample_query: "SELECT stay_id, first_name, table_number, created_at FROM guests ORDER BY created_at DESC;"
+    
+    whatsapp_logs:
+      description: "WhatsApp message logs (1,494 rows)"
+      key_columns: [id, direction, payload, created_at]
+      sample_query: "SELECT direction, created_at FROM whatsapp_logs WHERE DATE(created_at) = CURRENT_DATE ORDER BY created_at DESC;"
+
+x-common-queries:
+  menu_with_categories: "SELECT p.name, p.description, p.price, c.name as category FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY c.sort_order, p.sort_order, p.name;"
+  todays_orders: "SELECT id, customer_name, total_amount, order_status, created_at FROM orders WHERE DATE(created_at) = CURRENT_DATE ORDER BY created_at DESC;"
+  current_guests: "SELECT stay_id, first_name, table_number, created_at FROM guests ORDER BY created_at DESC LIMIT 20;"
+  categories_list: "SELECT name, description, sort_order FROM categories ORDER BY sort_order;"
+  recent_whatsapp: "SELECT direction, created_at FROM whatsapp_logs WHERE DATE(created_at) = CURRENT_DATE ORDER BY created_at DESC LIMIT 10;"

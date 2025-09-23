@@ -1,0 +1,354 @@
+openapi: 3.0.0
+info:
+  title: MotherBrainGPT Supabase API
+  description: Supabase MCP Server API for MotherBrainGPT - Database operations and management
+  version: 1.0.0
+servers:
+  - url: https://supabase-mcp-fly.fly.dev
+    description: Production server
+
+paths:
+  /api/capabilities:
+    get:
+      summary: Get server capabilities
+      description: Returns information about the Supabase MCP server capabilities
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Server capabilities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  server:
+                    type: string
+                  version:
+                    type: string
+                  description:
+                    type: string
+                  protocol:
+                    type: string
+                  capabilities:
+                    type: object
+                  endpoints:
+                    type: object
+
+  /api/status:
+    get:
+      summary: Get server status
+      description: Returns current status of the MCP server
+      responses:
+        '200':
+          description: Server status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                  mcpServer:
+                    type: string
+                  sseConnections:
+                    type: integer
+
+  /api/tools:
+    get:
+      summary: List available tools
+      description: Get a list of all available Supabase tools
+      responses:
+        '200':
+          description: List of available tools
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  requestId:
+                    type: string
+                  tools:
+                    type: array
+                    items:
+                      type: string
+                    description: List of available Supabase tool names
+
+  /api/tools/run_sql:
+    post:
+      summary: Execute SQL query
+      description: Execute a SQL query on the Supabase database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    query:
+                      type: string
+                      description: SQL query to execute
+                    params:
+                      type: array
+                      description: Query parameters
+                  required:
+                    - query
+      responses:
+        '200':
+          description: Query execution request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/select_rows:
+    post:
+      summary: Select rows from table
+      description: Select rows from a Supabase table
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    table:
+                      type: string
+                      description: Table name
+                    columns:
+                      type: array
+                      items:
+                        type: string
+                      description: Columns to select
+                    where:
+                      type: object
+                      description: WHERE conditions
+                    limit:
+                      type: integer
+                      description: Limit number of results
+                  required:
+                    - table
+      responses:
+        '200':
+          description: Select request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/insert_rows:
+    post:
+      summary: Insert rows into table
+      description: Insert new rows into a Supabase table
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    table:
+                      type: string
+                      description: Table name
+                    rows:
+                      type: array
+                      description: Array of row objects to insert
+                  required:
+                    - table
+                    - rows
+      responses:
+        '200':
+          description: Insert request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/update_rows:
+    post:
+      summary: Update rows in table
+      description: Update existing rows in a Supabase table
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    table:
+                      type: string
+                      description: Table name
+                    values:
+                      type: object
+                      description: Values to update
+                    where:
+                      type: object
+                      description: WHERE conditions
+                  required:
+                    - table
+                    - values
+                    - where
+      responses:
+        '200':
+          description: Update request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/delete_rows:
+    post:
+      summary: Delete rows from table
+      description: Delete rows from a Supabase table
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    table:
+                      type: string
+                      description: Table name
+                    where:
+                      type: object
+                      description: WHERE conditions for deletion
+                  required:
+                    - table
+                    - where
+      responses:
+        '200':
+          description: Delete request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/create_table:
+    post:
+      summary: Create new table
+      description: Create a new table in the Supabase database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Table name
+                    columns:
+                      type: array
+                      description: Column definitions
+                  required:
+                    - name
+                    - columns
+      responses:
+        '200':
+          description: Create table request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/list_tables:
+    post:
+      summary: List all tables
+      description: Get a list of all tables in the Supabase database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    schema:
+                      type: string
+                      description: Schema name (default: public)
+      responses:
+        '200':
+          description: List tables request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/get_table_schema:
+    post:
+      summary: Get table schema
+      description: Get the schema definition of a specific table
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    table:
+                      type: string
+                      description: Table name
+                  required:
+                    - table
+      responses:
+        '200':
+          description: Get table schema request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ToolResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+        requestId:
+          type: string
+          description: Unique request identifier
+        toolName:
+          type: string
+          description: Name of the executed tool
+        arguments:
+          type: object
+          description: Arguments passed to the tool
+        hint:
+          type: string
+          description: Information about response handling

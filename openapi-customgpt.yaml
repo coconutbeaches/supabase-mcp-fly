@@ -1,0 +1,205 @@
+openapi: 3.1.0
+info:
+  title: MotherBrainGPT API
+  description: Supabase MCP Server Bridge for Coconut Beach Hotel & Restaurant Management
+  version: 2.0.0
+
+servers:
+  - url: https://supabase-mcp-fly.fly.dev
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    ToolResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        toolName:
+          type: string
+        result:
+          type: object
+
+paths:
+  /api/tools:
+    get:
+      summary: List Available Tools
+      description: Get list of all available MCP tools
+      operationId: listAvailableTools
+      responses:
+        '200':
+          description: List of available tools
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tools:
+                    type: array
+                    items:
+                      type: string
+                  count:
+                    type: integer
+
+  /api/tools/execute_sql:
+    post:
+      summary: Execute SQL Query
+      description: Execute SQL queries against the database. Use for ALL data operations including SELECT, JOIN, WHERE clauses.
+      operationId: executeSQL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    query:
+                      type: string
+                      description: SQL query to execute
+                  required: [query]
+              required: [arguments]
+            examples:
+              menu_items:
+                summary: List menu items
+                value:
+                  arguments:
+                    query: "SELECT p.name, p.description, p.price, c.name as category FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY c.sort_order, p.name;"
+              todays_orders:
+                summary: Today's orders
+                value:
+                  arguments:
+                    query: "SELECT id, customer_name, total_amount, order_status, created_at FROM orders WHERE DATE(created_at) = CURRENT_DATE ORDER BY created_at DESC;"
+              current_guests:
+                summary: Current guests
+                value:
+                  arguments:
+                    query: "SELECT stay_id, first_name, table_number FROM guests ORDER BY created_at DESC LIMIT 20;"
+      responses:
+        '200':
+          description: SQL query executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/list_tables:
+    post:
+      summary: List Database Tables
+      description: Get database table information including names, columns, and row counts. Use empty arguments only.
+      operationId: listTables
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties: {}
+              required: [arguments]
+            example:
+              arguments: {}
+      responses:
+        '200':
+          description: Database tables listed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/search_docs:
+    post:
+      summary: Search Supabase Documentation
+      description: Search Supabase documentation using GraphQL queries
+      operationId: searchDocs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    graphql_query:
+                      type: string
+                      description: GraphQL query for documentation search
+                  required: [graphql_query]
+              required: [arguments]
+      responses:
+        '200':
+          description: Documentation search completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/get_advisors:
+    post:
+      summary: Get Database Advisors
+      description: Get security and performance recommendations
+      operationId: getAdvisors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [security, performance]
+                  required: [type]
+              required: [arguments]
+      responses:
+        '200':
+          description: Advisors retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/get_logs:
+    post:
+      summary: Get Project Logs
+      description: Fetch logs from Supabase services
+      operationId: getLogs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    service:
+                      type: string
+                      enum: [api, postgres, auth, storage, realtime]
+                  required: [service]
+              required: [arguments]
+      responses:
+        '200':
+          description: Logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'

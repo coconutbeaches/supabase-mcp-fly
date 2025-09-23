@@ -1,0 +1,302 @@
+openapi: 3.0.0
+info:
+  title: MotherBrainGPT Supabase API
+  description: Supabase MCP Server API for MotherBrainGPT - Database operations and management
+  version: 1.0.0
+
+servers:
+  - url: https://supabase-mcp-fly.fly.dev
+    description: Production server
+
+paths:
+  /api/capabilities:
+    get:
+      operationId: getCapabilities
+      summary: Get server capabilities
+      description: Returns information about the Supabase MCP server capabilities
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Server capabilities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  server:
+                    type: string
+                    example: "supabase-mcp-bridge"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  description:
+                    type: string
+                    example: "Supabase MCP Server - Database operations and management"
+
+  /api/status:
+    get:
+      operationId: getStatus
+      summary: Get server status
+      description: Returns current status of the MCP server
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Server status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "running"
+                  timestamp:
+                    type: string
+                    example: "2025-09-23T07:07:02.278Z"
+                  mcpServer:
+                    type: string
+                    example: "active"
+
+  /api/tools:
+    get:
+      operationId: getTools
+      summary: List available tools
+      description: Get a list of all available Supabase tools
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of available tools
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tools list requested"
+                  tools:
+                    type: array
+                    items:
+                      type: string
+                    example: ["run_sql", "select_rows", "insert_rows", "list_tables"]
+
+  /api/tools/run_sql:
+    post:
+      operationId: runSQL
+      summary: Execute SQL query
+      description: Execute a SQL query on the Supabase database
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    query:
+                      type: string
+                      description: SQL query to execute
+                      example: "SELECT * FROM users LIMIT 10"
+                  required:
+                    - query
+              required:
+                - arguments
+      responses:
+        '200':
+          description: Query execution request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/select_rows:
+    post:
+      operationId: selectRows
+      summary: Select rows from table
+      description: Select rows from a Supabase table
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    table:
+                      type: string
+                      description: Table name
+                      example: "users"
+                    columns:
+                      type: array
+                      items:
+                        type: string
+                      description: Columns to select
+                      example: ["id", "email", "name"]
+                    where:
+                      type: object
+                      description: WHERE conditions
+                      example: {"active": true}
+                    limit:
+                      type: integer
+                      description: Limit number of results
+                      example: 10
+                  required:
+                    - table
+              required:
+                - arguments
+      responses:
+        '200':
+          description: Select request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/insert_rows:
+    post:
+      operationId: insertRows
+      summary: Insert rows into table
+      description: Insert new rows into a Supabase table
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    table:
+                      type: string
+                      description: Table name
+                      example: "users"
+                    rows:
+                      type: array
+                      description: Array of row objects to insert
+                      example: [{"name": "John", "email": "john@example.com"}]
+                  required:
+                    - table
+                    - rows
+              required:
+                - arguments
+      responses:
+        '200':
+          description: Insert request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/list_tables:
+    post:
+      operationId: listTables
+      summary: List all tables
+      description: Get a list of all tables in the Supabase database
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    schema:
+                      type: string
+                      description: Schema name (default is public)
+                      example: "public"
+              required:
+                - arguments
+      responses:
+        '200':
+          description: List tables request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+  /api/tools/create_table:
+    post:
+      operationId: createTable
+      summary: Create new table
+      description: Create a new table in the Supabase database
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arguments:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: Table name
+                      example: "products"
+                    columns:
+                      type: array
+                      description: Column definitions
+                      example: [{"name": "id", "type": "serial", "primary": true}, {"name": "title", "type": "text"}]
+                  required:
+                    - name
+                    - columns
+              required:
+                - arguments
+      responses:
+        '200':
+          description: Create table request accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ToolResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: "Tool execution requested"
+        requestId:
+          type: string
+          description: Unique request identifier
+          example: "tool-run_sql-1695456789123"
+        toolName:
+          type: string
+          description: Name of the executed tool
+          example: "run_sql"
+        arguments:
+          type: object
+          description: Arguments passed to the tool
+        hint:
+          type: string
+          description: Information about response handling
+          example: "Check MCP server response via SSE stream"
