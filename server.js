@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 import { nanoid } from "nanoid";
 import getRawBody from "raw-body";
 import rateLimit from "express-rate-limit";
+import { createClient } from "@supabase/supabase-js";
 
 /**
  * Minimal HTTP/SSE bridge for an stdio-only MCP server.
@@ -19,6 +20,10 @@ const READ_ONLY = process.env.READ_ONLY === "false" ? false : true;
 const DEBUG_MCP = process.env.DEBUG_MCP === "1";
 const SUPABASE_ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
 const PROJECT_REF = process.env.PROJECT_REF;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+console.log(`SUPABASE_SERVICE_ROLE_KEY present: ${Boolean(SUPABASE_SERVICE_ROLE_KEY)}`);
 
 if (!SUPABASE_ACCESS_TOKEN) {
   console.error("Missing SUPABASE_ACCESS_TOKEN");
@@ -28,6 +33,18 @@ if (!PROJECT_REF) {
   console.error("Missing PROJECT_REF");
   process.exit(1);
 }
+if (!SUPABASE_URL) {
+  console.error("Missing SUPABASE_URL");
+  process.exit(1);
+}
+if (!SUPABASE_SERVICE_ROLE_KEY) {
+  console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
+  process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 
 // Debug logger
 const debugLog = (prefix, data) => {
@@ -155,6 +172,54 @@ app.get("/mcp/test/tools", (_req, res) => {
 app.use('/api', express.json({ limit: '10mb' }));
 app.use('/api', express.urlencoded({ extended: true }));
 
+// Custom endpoint: upsert_guest_from_checkin
+app.post("/api/tools/upsert_guest_from_checkin", async (req, res) => {
+  try {
+    const { arguments: args } = req.body;
+    
+    if (!args || !args._stay_id || !args._passport_json) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: _stay_id and _passport_json"
+      });
+    }
+    
+    // Call Supabase RPC function directly
+    const rpcPayload = {
+      _stay_id: args._stay_id,
+      _phone: args._phone || null,
+      _nickname: args._nickname || null,
+      _display_name: args._display_name || null,
+      _notes: args._notes || null,
+      _passport_json: args._passport_json
+    };
+    
+    const { data: result, error } = await supabase.rpc("upsert_guest_from_checkin", rpcPayload);
+
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        message: `Supabase RPC failed: ${error.message}`,
+        error: error
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: "Tool 'upsert_guest_from_checkin' executed successfully",
+      toolName: "upsert_guest_from_checkin",
+      arguments: args,
+      result: { content: JSON.stringify(result) }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: `Error executing upsert_guest_from_checkin: ${error.message}`,
+      error: error.message
+    });
+  }
+});
+
 // Get list of available tools
 app.get("/api/tools", async (req, res) => {
   try {
@@ -174,10 +239,11 @@ app.get("/api/tools", async (req, res) => {
       const response = await captureResponse(mcpRequest.id, null, 5000);
       
       if (response.timeout) {
-        // Return cached tool list if timeout
+        // Return cached tool list if timeout (includes custom tool)
         res.json({ 
           message: "Tools list (cached - MCP response timeout)", 
           tools: [
+            "upsert_guest_from_checkin",
             "search_docs", "list_tables", "list_extensions", "list_migrations",
             "apply_migration", "execute_sql", "get_logs", "get_advisors",
             "get_project_url", "get_anon_key", "generate_typescript_types",
@@ -188,18 +254,19 @@ app.get("/api/tools", async (req, res) => {
           hint: "Response timeout - check SSE stream"
         });
       } else if (response.result && response.result.tools) {
-        // Return actual tool list from MCP server
+        // Return actual tool list from MCP server (prepend custom tool)
         const toolNames = response.result.tools.map(tool => tool.name);
         res.json({ 
           message: "Tools list from MCP server", 
-          tools: toolNames,
-          count: toolNames.length
+          tools: ["upsert_guest_from_checkin", ...toolNames],
+          count: toolNames.length + 1
         });
       } else {
         // Return cached if MCP response was invalid
         res.json({ 
           message: "Tools list (cached - invalid MCP response)", 
           tools: [
+            "upsert_guest_from_checkin",
             "search_docs", "list_tables", "list_extensions", "list_migrations",
             "apply_migration", "execute_sql", "get_logs", "get_advisors",
             "get_project_url", "get_anon_key", "generate_typescript_types",
@@ -213,6 +280,7 @@ app.get("/api/tools", async (req, res) => {
       res.json({ 
         message: "Tools list (cached - capture failed)", 
         tools: [
+          "upsert_guest_from_checkin",
           "search_docs", "list_tables", "list_extensions", "list_migrations",
           "apply_migration", "execute_sql", "get_logs", "get_advisors",
           "get_project_url", "get_anon_key", "generate_typescript_types",
