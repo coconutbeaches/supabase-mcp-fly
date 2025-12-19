@@ -1,20 +1,13 @@
-# syntax=docker/dockerfile:1
+FROM node:20-alpine
 
-# Small and predictable
-FROM node:20-alpine AS base
 WORKDIR /app
-ENV NODE_ENV=production
-ENV PORT=3000
 
-# Install only what we need to run
-COPY package.json package-lock.json* ./
+COPY package*.json ./
 RUN npm ci --omit=dev
 
-# Add app code
-COPY server.js ./
+COPY . .
 
-# Fly will route to this
-EXPOSE 3000
+ENV NODE_ENV=production
+EXPOSE 8080
 
-# Run the bridge
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
