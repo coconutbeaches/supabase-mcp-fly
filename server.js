@@ -21,9 +21,27 @@ const DEBUG_MCP = process.env.DEBUG_MCP === "1";
 const SUPABASE_ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
 const PROJECT_REF = process.env.PROJECT_REF;
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_SECRET_KEY_NAME = process.env.SUPABASE_SECRET_KEY_NAME || "edge_admin";
 
-console.log(`SUPABASE_SERVICE_ROLE_KEY present: ${Boolean(SUPABASE_SERVICE_ROLE_KEY)}`);
+function getSupabaseAdminKey() {
+  const raw = process.env.SUPABASE_SECRET_KEYS;
+  if (!raw) {
+    throw new Error("Missing SUPABASE_SECRET_KEYS");
+  }
+
+  let keys;
+  try {
+    keys = JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`Invalid SUPABASE_SECRET_KEYS JSON: ${error.message}`);
+  }
+
+  const key = keys?.[SUPABASE_SECRET_KEY_NAME];
+  if (!key) {
+    throw new Error(`Missing Supabase secret key '${SUPABASE_SECRET_KEY_NAME}'`);
+  }
+  return key;
+}
 
 if (!SUPABASE_ACCESS_TOKEN) {
   console.error("Missing SUPABASE_ACCESS_TOKEN");
@@ -37,12 +55,18 @@ if (!SUPABASE_URL) {
   console.error("Missing SUPABASE_URL");
   process.exit(1);
 }
-if (!SUPABASE_SERVICE_ROLE_KEY) {
-  console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
+
+let supabaseAdminKey;
+try {
+  supabaseAdminKey = getSupabaseAdminKey();
+} catch (error) {
+  console.error(error.message);
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+console.log(`Supabase admin key loaded from SUPABASE_SECRET_KEYS.${SUPABASE_SECRET_KEY_NAME}`);
+
+const supabase = createClient(SUPABASE_URL, supabaseAdminKey, {
   auth: { persistSession: false, autoRefreshToken: false }
 });
 

@@ -54,6 +54,7 @@ npm install
 export SUPABASE_ACCESS_TOKEN="your-token"
 export PROJECT_REF="your-project-ref"
 export BRIDGE_TOKEN="your-auth-token"
+export SUPABASE_SECRET_KEYS='{"edge_admin":"sb_secret_..."}'
 
 # Start server
 npm start
@@ -65,10 +66,15 @@ npm start
 fly secrets set SUPABASE_ACCESS_TOKEN="your-token"
 fly secrets set PROJECT_REF="your-project-ref"  
 fly secrets set BRIDGE_TOKEN="your-auth-token"
+fly secrets set SUPABASE_SECRET_KEYS='{"edge_admin":"sb_secret_..."}'
 
 # Deploy
 fly deploy
 ```
+
+`SUPABASE_SECRET_KEYS.edge_admin` is the admin key used by the bridge's custom
+write endpoint. Do not use the legacy `SUPABASE_SERVICE_ROLE_KEY` variable for
+new deploys.
 
 ## 📡 API Endpoints
 
